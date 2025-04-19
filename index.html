@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>OSFreaks</title>
+  <style>
+    :root {
+      --dark-gray: #2e2e2e;
+      --light-blue: #64b5f6;
+      --dark-blue: #0a192f;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: var(--dark-gray);
+      color: var(--light-blue);
+      font-family: 'Courier New', Courier, monospace;
+      overflow: hidden;
+    }
+    /* SPLASH */
+    #overlay {
+      position: fixed; top: 0; left: 0;
+      width: 100%; height: 100%;
+      display: flex; align-items: center; justify-content: center;
+      background: var(--dark-gray);
+      z-index: 1000;
+    }
+    #overlay h1 {
+      font-size: 4rem;
+      opacity: 0;
+      text-shadow: 0 0 10px var(--light-blue), 0 0 20px var(--light-blue);
+      animation:
+        fadeIn 4s ease forwards,
+        flicker 0.15s steps(2, start) infinite;
+    }
+    @keyframes fadeIn {
+      0%   { opacity: 0; }
+      50%  { opacity: 1; }
+      100% { opacity: 1; }
+    }
+    @keyframes flicker {
+      0%,100%  { text-shadow: 0 0 5px var(--light-blue), 0 0 10px var(--light-blue); }
+      50%      { text-shadow: 0 0 20px var(--light-blue), 0 0 30px var(--light-blue); }
+    }
+    /* CONSOLE */
+    #console {
+      position: fixed; top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: var(--dark-blue);
+      padding: 1rem;
+      overflow-y: auto;
+      display: none;
+    }
+    #console .line {
+      margin-bottom: 0.5rem;
+    }
+    /* MAIN UI */
+    #main-ui {
+      display: none;
+      position: fixed; top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: var(--dark-gray);
+      display: flex; align-items: center; justify-content: center;
+      flex-direction: column;
+    }
+    button {
+      padding: 0.75rem 1.5rem;
+      font-size: 1rem;
+      border: none;
+      background: var(--light-blue);
+      color: var(--dark-gray);
+      cursor: pointer;
+      border-radius: 4px;
+    }
+    input[type="text"] {
+      padding: 0.5rem;
+      font-size: 1rem;
+      margin-top: 1rem;
+      width: 80%; max-width: 300px;
+      border: 1px solid var(--light-blue);
+      background: var(--dark-blue);
+      color: var(--light-blue);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Splash -->
+  <div id="overlay">
+    <h1>OSFreaks</h1>
+  </div>
+
+  <!-- Fake Console -->
+  <div id="console">
+    <div id="console-content"></div>
+  </div>
+
+  <!-- Main Tweak Menu -->
+  <div id="main-ui">
+    <button id="tweak-btn">Tweak OS IPA</button>
+    <div id="input-area"></div>
+  </div>
+
+  <script>
+    // Print a line to the fake console
+    function printLine(msg) {
+      const c = document.getElementById('console-content');
+      const line = document.createElement('div');
+      line.className = 'line';
+      line.textContent = msg;
+      c.appendChild(line);
+      c.parentElement.scrollTop = c.parentElement.scrollHeight;
+    }
+
+    // Get screen size
+    function getScreenSize() {
+      return window.innerWidth + '×' + window.innerHeight;
+    }
+
+    // Rudimentary device name from userAgent
+    function getDeviceName() {
+      const ua = navigator.userAgent;
+      if (/iPhone/.test(ua)) return 'iPhone';
+      if (/iPad/.test(ua))   return 'iPad';
+      if (/Android/.test(ua))return 'Android Device';
+      if (/Windows Phone/.test(ua)) return 'Windows Phone';
+      if (/Windows/.test(ua))return 'Windows PC';
+      if (/Macintosh/.test(ua))return 'Mac';
+      return 'Unknown Device';
+    }
+
+    // Start the fake scanning sequence after the 4s splash
+    function startSequence() {
+      document.getElementById('overlay').style.display = 'none';
+      const consoleEl = document.getElementById('console');
+      consoleEl.style.display = 'block';
+
+      // Show device info
+      printLine('Screen Size: ' + getScreenSize());
+      printLine('Device: ' + getDeviceName());
+
+      // Fake scan messages
+      const messages = [
+        'Initializing system scan...',
+        'Scanning installed applications...',
+        'Analyzing app permissions...',
+        'Optimizing IPA download pipeline...',
+        'Decrypting app binaries...',
+        'Injecting custom hooks...',
+        'Repackaging IPA...',
+        'Verifying integrity...',
+        'Finalizing optimization...',
+        'Ready for tweaks...'
+      ];
+      messages.forEach((msg, i) => {
+        setTimeout(() => printLine(msg), 1000 * (i + 1));
+      });
+
+      // After ~12s, show the tweak menu
+      setTimeout(() => {
+        consoleEl.style.display = 'none';
+        document.getElementById('main-ui').style.display = 'flex';
+      }, (messages.length + 2) * 1000);
+    }
+    setTimeout(startSequence, 4000);
+
+    // Build the input box when "Tweak OS IPA" is clicked
+    document.getElementById('tweak-btn').addEventListener('click', () => {
+      const ia = document.getElementById('input-area');
+      if (ia.innerHTML) return; // only once
+      const input = document.createElement('input');
+      input.type = 'text';
+      input.placeholder = 'Enter game name...';
+      const goBtn = document.createElement('button');
+      goBtn.textContent = 'Start Tweak';
+      ia.appendChild(input);
+      ia.appendChild(goBtn);
+      goBtn.addEventListener('click', () => {
+        tweakGame(input.value.trim());
+      });
+    });
+
+    // Fake tweak flow
+    function tweakGame(name) {
+      const consoleEl = document.getElementById('console');
+      const mainUI = document.getElementById('main-ui');
+      mainUI.style.display = 'none';
+      consoleEl.style.display = 'block';
+
+      const c = document.getElementById('console-content');
+      c.innerHTML = '';
+
+      const lower = name.toLowerCase();
+      const isShooting = /(shoot|fps|gun|battle)/.test(lower);
+      const isRacing   = /(race|racing|drift|speed)/.test(lower);
+
+      const tweakMsgs = [
+        'Preparing tweak module...',
+        'Loading custom features...'
+      ];
+      if (isShooting) {
+        tweakMsgs.push(
+          'Enabling unlimited ammo',
+          'Activating aimbot targeting',
+          'Unlocking all weapons',
+          'Cheat engine integration'
+        );
+      } else if (isRacing) {
+        tweakMsgs.push(
+          'Setting top speed to 999',
+          'Unlimited nitro boost',
+          'Enhanced handling enabled',
+          'Custom car skins applied'
+        );
+      } else {
+        tweakMsgs.push(
+          'Applying universal tweaks',
+          'Unlocking premium items',
+          'Maximizing performance',
+          'Enhancing graphics'
+        );
+      }
+      tweakMsgs.push(
+        'Rebuilding IPA...',
+        'Signing package...',
+        'Installing on device...',
+        'Tweak complete! Enjoy!'
+      );
+
+      tweakMsgs.forEach((msg, i) => {
+        setTimeout(() => printLine(msg), 800 * (i + 1));
+      });
+    }
+  </script>
+</body>
+</html>
